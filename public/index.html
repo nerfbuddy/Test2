@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vulnerable Web Application</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        h1 {
+            color: #d32f2f;
+        }
+        h2 {
+            color: #333;
+            border-bottom: 2px solid #d32f2f;
+            padding-bottom: 10px;
+        }
+        .warning {
+            background-color: #ffebee;
+            border-left: 4px solid #d32f2f;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        form {
+            margin: 15px 0;
+        }
+        input, textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        button {
+            background-color: #d32f2f;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin: 5px 0;
+        }
+        button:hover {
+            background-color: #b71c1c;
+        }
+        .result {
+            background-color: #f5f5f5;
+            padding: 15px;
+            border-radius: 4px;
+            margin-top: 10px;
+            white-space: pre-wrap;
+            font-family: monospace;
+        }
+        .section {
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>⚠️ Vulnerable Web Application</h1>
+        <div class="warning">
+            <strong>WARNING:</strong> This application contains intentional security vulnerabilities for educational purposes only. 
+            Do not use in production!
+        </div>
+    </div>
+
+    <div class="container section">
+        <h2>1. SQL Injection</h2>
+        <p>Search for users (try: <code>' OR '1'='1</code>)</p>
+        <form onsubmit="searchUsers(event)">
+            <input type="text" id="searchTerm" placeholder="Enter search term" required>
+            <button type="submit">Search</button>
+        </form>
+        <div id="searchResult" class="result" style="display:none;"></div>
+    </div>
+
+    <div class="container section">
+        <h2>2. Insecure Direct Object Reference (IDOR)</h2>
+        <p>Access user data by ID (try: 1, 2, or any number)</p>
+        <form onsubmit="getUser(event)">
+            <input type="number" id="userId" placeholder="User ID" required>
+            <button type="submit">Get User</button>
+        </form>
+        <div id="userResult" class="result" style="display:none;"></div>
+    </div>
+
+    <div class="container section">
+        <h2>3. Cross-Site Scripting (XSS)</h2>
+        <p>Post a comment (try: <code>&lt;script&gt;alert('XSS')&lt;/script&gt;</code>)</p>
+        <form onsubmit="postComment(event)">
+            <input type="text" id="username" placeholder="Username">
+            <textarea id="comment" placeholder="Your comment" required></textarea>
+            <button type="submit">Post Comment</button>
+        </form>
+        <div id="commentsResult" class="result"></div>
+    </div>
+
+    <div class="container section">
+        <h2>4. Command Injection</h2>
+        <p>Ping a host (try: <code>8.8.8.8; ls</code> or <code>8.8.8.8 && dir</code>)</p>
+        <form onsubmit="pingHost(event)">
+            <input type="text" id="host" placeholder="Host to ping" required>
+            <button type="submit">Ping</button>
+        </form>
+        <div id="pingResult" class="result" style="display:none;"></div>
+    </div>
+
+    <div class="container section">
+        <h2>5. Path Traversal</h2>
+        <p>Read a file (try: <code>../../../../etc/passwd</code> or <code>..\\..\\..\\..\\windows\\system32\\drivers\\etc\\hosts</code>)</p>
+        <form onsubmit="readFile(event)">
+            <input type="text" id="filename" placeholder="Filename" required>
+            <button type="submit">Read File</button>
+        </form>
+        <div id="fileResult" class="result" style="display:none;"></div>
+    </div>
+
+    <div class="container section">
+        <h2>6. Code Injection (eval)</h2>
+        <p>Calculate expression (try: <code>require('fs').readFileSync('package.json', 'utf8')</code>)</p>
+        <form onsubmit="calculate(event)">
+            <input type="text" id="expression" placeholder="JavaScript expression" required>
+            <button type="submit">Calculate</button>
+        </form>
+        <div id="calcResult" class="result" style="display:none;"></div>
+    </div>
+
+    <div class="container section">
+        <h2>7. Weak Authentication</h2>
+        <p>Login (credentials: admin/admin123 or user1/password)</p>
+        <form onsubmit="login(event)">
+            <input type="text" id="loginUsername" placeholder="Username" required>
+            <input type="password" id="loginPassword" placeholder="Password" required>
+            <button type="submit">Login</button>
+        </form>
+        <div id="loginResult" class="result" style="display:none;"></div>
+    </div>
+
+    <div class="container section">
+        <h2>8. Register (Plain Text Passwords)</h2>
+        <form onsubmit="register(event)">
+            <input type="text" id="regUsername" placeholder="Username" required>
+            <input type="password" id="regPassword" placeholder="Password" required>
+            <input type="email" id="regEmail" placeholder="Email" required>
+            <button type="submit">Register</button>
+        </form>
+        <div id="regResult" class="result" style="display:none;"></div>
+    </div>
+
+    <div class="container section">
+        <h2>9. Admin Panel (No Authentication)</h2>
+        <p><a href="/admin" target="_blank">Access Admin Panel</a> (No login required!)</p>
+    </div>
+
+    <script>
+        async function searchUsers(e) {
+            e.preventDefault();
+            const term = document.getElementById('searchTerm').value;
+            const response = await fetch('/api/search', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ term: term })
+            });
+            const data = await response.json();
+            document.getElementById('searchResult').style.display = 'block';
+            document.getElementById('searchResult').textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function getUser(e) {
+            e.preventDefault();
+            const userId = document.getElementById('userId').value;
+            const response = await fetch(`/api/user/${userId}`);
+            const data = await response.json();
+            document.getElementById('userResult').style.display = 'block';
+            document.getElementById('userResult').textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function postComment(e) {
+            e.preventDefault();
+            const comment = document.getElementById('comment').value;
+            const username = document.getElementById('username').value;
+            await fetch('/api/comment', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ comment: comment, username: username })
+            });
+            loadComments();
+            document.getElementById('comment').value = '';
+        }
+
+        async function loadComments() {
+            const response = await fetch('/api/comments');
+            const data = await response.json();
+            // XSS vulnerability - directly inserting unsanitized content
+            document.getElementById('commentsResult').innerHTML = 
+                '<h3>Comments:</h3>' + 
+                data.map(p => `<div><strong>${p.author}</strong>: ${p.content}</div>`).join('<br>');
+        }
+
+        async function pingHost(e) {
+            e.preventDefault();
+            const host = document.getElementById('host').value;
+            const response = await fetch('/api/ping', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ host: host })
+            });
+            const data = await response.json();
+            document.getElementById('pingResult').style.display = 'block';
+            document.getElementById('pingResult').textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function readFile(e) {
+            e.preventDefault();
+            const filename = document.getElementById('filename').value;
+            const response = await fetch(`/api/file?filename=${encodeURIComponent(filename)}`);
+            const data = await response.json();
+            document.getElementById('fileResult').style.display = 'block';
+            document.getElementById('fileResult').textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function calculate(e) {
+            e.preventDefault();
+            const expression = document.getElementById('expression').value;
+            const response = await fetch('/api/calculate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ expression: expression })
+            });
+            const data = await response.json();
+            document.getElementById('calcResult').style.display = 'block';
+            document.getElementById('calcResult').textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function login(e) {
+            e.preventDefault();
+            const username = document.getElementById('loginUsername').value;
+            const password = document.getElementById('loginPassword').value;
+            const response = await fetch('/api/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: username, password: password })
+            });
+            const data = await response.json();
+            document.getElementById('loginResult').style.display = 'block';
+            document.getElementById('loginResult').textContent = JSON.stringify(data, null, 2);
+        }
+
+        async function register(e) {
+            e.preventDefault();
+            const username = document.getElementById('regUsername').value;
+            const password = document.getElementById('regPassword').value;
+            const email = document.getElementById('regEmail').value;
+            const response = await fetch('/api/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username: username, password: password, email: email })
+            });
+            const data = await response.json();
+            document.getElementById('regResult').style.display = 'block';
+            document.getElementById('regResult').textContent = JSON.stringify(data, null, 2);
+        }
+
+        // Load comments on page load
+        loadComments();
+    </script>
+</body>
+</html>
+
